@@ -2,6 +2,7 @@
   "expo": {
     "name": "AttendEase",
     "slug": "AttendEase",
+    "scheme": "attendease",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -9,22 +10,51 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0d1f14"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0d1f14",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT",
+        "CAMERA"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+     "expo-router",
+     "expo-secure-store",
+     [
+     "expo-location",
+       {
+      "locationAlwaysAndWhenInUsePermission": "AttendEase needs your location to verify you are inside the classroom."
+       }
+     ],
+     [
+      "expo-camera",
+      {
+      "cameraPermission": "AttendEase needs camera access for selfie verification."
+      }
+     ],
+     [
+     "expo-local-authentication",
+      {
+      "faceIDPermission": "AttendEase uses Face ID to verify your identity."
+      }
+     ]
+  ]
   }
 }
