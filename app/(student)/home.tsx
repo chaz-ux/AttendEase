@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView,
-  Animated, Alert, ActivityIndicator, RefreshControl
+  Animated, Alert, ActivityIndicator, RefreshControl, Platform
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Device from 'expo-device';
@@ -20,9 +20,11 @@ type ActiveSession = {
   id: string;
   started_at: string;
   ended_at: string | null;
-  units: { code: string; name: string };
-  classrooms: { name: string; center_lat: number; center_lng: number; radius_meters: number };
-  profiles: { full_name: string };
+  center_lat: number;
+  center_lng: number;
+  radius_meters: number;
+  units: { code: string; name: string } | null;
+  profiles: { full_name: string } | null;
 };
 
 export default function StudentHome() {
@@ -82,15 +84,15 @@ export default function StudentHome() {
       .from('sessions')
       .select(`
         id, started_at, ended_at, attendance_open,
+        center_lat, center_lng, radius_meters,
         units:unit_id (code, name),
-        classrooms:classroom_id (name, center_lat, center_lng, radius_meters),
         profiles:lecturer_id (full_name)
       `)
       .eq('attendance_open', true)
       .is('ended_at', null)
       .order('started_at', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (data) {
       setActiveSession(data as any);
@@ -100,7 +102,7 @@ export default function StudentHome() {
         .select('id')
         .eq('session_id', data.id)
         .eq('student_id', user!.id)
-        .single();
+        .maybeSingle();
       if (existing) setStatus('already_checked');
       else setStatus('idle');
     } else {
@@ -140,13 +142,11 @@ export default function StudentHome() {
     setStatus('checking');
 
     try {
-      const classroom = activeSession.classrooms;
       const geo = await checkGeofence(
-        classroom.center_lat,
-        classroom.center_lng,
-        classroom.radius_meters
+        activeSession.center_lat,
+        activeSession.center_lng,
+        activeSession.radius_meters
       );
-
       setGpsInfo({ inside: geo.inside, distance: geo.distanceMeters, accuracy: geo.accuracy });
 
       if (!geo.inside) {
@@ -154,36 +154,41 @@ export default function StudentHome() {
         return;
       }
 
-      // Call edge function for server-side verification + logging
+      // Write attendance directly — no edge function needed
       const deviceId = Device.modelId ?? Device.deviceName ?? 'unknown';
-      const { data: { session } } = await supabase.auth.getSession();
 
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/verify-attendance`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session?.access_token}`,
-          },
-          body: JSON.stringify({
-            session_id: activeSession.id,
-            lat: geo.coords.lat,
-            lng: geo.coords.lng,
-            device_id: deviceId,
-          }),
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('university_id')
+        .eq('id', user!.id)
+        .single();
+
+      const { error } = await supabase
+        .from('attendance_logs')
+        .insert({
+          session_id: activeSession.id,
+          student_id: user!.id,
+          check_in_lat: geo.coords.lat,
+          check_in_lng: geo.coords.lng,
+          distance_meters: geo.distanceMeters,
+          device_id: deviceId,
+          is_verified: true,
+          university_id: profileData?.university_id,
+        });
+
+      if (error) {
+        // Duplicate check-in
+        if (error.code === '23505') {
+          setStatus('already_checked');
+        } else {
+          Alert.alert('Check-in failed', error.message);
+          setStatus('idle');
         }
-      );
-
-      const result = await response.json();
-
-      if (result.success) {
-        setStatus('verified');
-        await loadRecentAttendance(); // refresh stats
-      } else {
-        Alert.alert('Check-in failed', result.reason);
-        setStatus('idle');
+        return;
       }
+
+      setStatus('verified');
+      await loadRecentAttendance();
     } catch (e: any) {
       Alert.alert('Error', e.message);
       setStatus('idle');
@@ -265,17 +270,19 @@ export default function StudentHome() {
 
           <Text style={[styles.sessionUnit, !activeSession && { color: C.textDim }]}>
             {activeSession
-              ? `${activeSession.units.code} — ${activeSession.units.name}`
+              ? `${activeSession.units?.code ?? ''} — ${activeSession.units?.name ?? ''}`
               : 'No class right now'}
           </Text>
           <Text style={[styles.sessionRoom, !activeSession && { color: C.textDim }]}>
-            {activeSession ? activeSession.classrooms.name : 'Check your schedule for next class'}
+            {activeSession
+              ? `📍 ${activeSession.radius_meters}m geofence · ${activeSession.units?.code}`
+              : 'Check your schedule for next class'}
           </Text>
 
           {activeSession && (
             <View style={styles.sessionMeta}>
-              <Text style={styles.metaText}>👤 {activeSession.profiles.full_name}</Text>
-              <Text style={styles.metaText}>📍 {activeSession.classrooms.name}</Text>
+              <Text style={styles.metaText}>👤 {activeSession.profiles?.full_name}</Text>
+              <Text style={styles.metaText}>📡 GPS-verified attendance</Text>
             </View>
           )}
         </View>
@@ -324,7 +331,7 @@ export default function StudentHome() {
               : status === 'no_session'
               ? 'Attendance opens when lecturer starts session'
               : activeSession
-              ? `GPS verified · ${activeSession.units.code}`
+              ? `GPS verified · ${activeSession.units?.code ?? ''}`
               : ''}
           </Text>
         </View>
@@ -387,9 +394,7 @@ export default function StudentHome() {
       <View style={styles.bottomNav}>
         {[
           { icon: '🏠', label: 'HOME', route: '/(student)/home', active: true },
-          { icon: '📅', label: 'SCHEDULE', route: null, active: false },
           { icon: '📋', label: 'HISTORY', route: '/(student)/history', active: false },
-          { icon: '👤', label: 'PROFILE', route: null, active: false },
           { icon: '🚪', label: 'LOG OUT', route: null, active: false, onPress: () => {
             Alert.alert('Sign out', 'Are you sure?', [
               { text: 'Cancel', style: 'cancel' },
@@ -401,11 +406,8 @@ export default function StudentHome() {
             key={item.label}
             style={styles.navItem}
             onPress={() => {
-              if (item.onPress) {
-                item.onPress();
-              } else if (item.route) {
-                router.push(item.route as any);
-              }
+              if (item.onPress) item.onPress();
+              else if (item.route) router.push(item.route as any);
             }}
           >
             <Text style={{ fontSize: 20, opacity: item.active ? 1 : 0.35 }}>{item.icon}</Text>

@@ -6,6 +6,7 @@ import {
 import { useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import AnalyticsCharts from '../../components/AnalyticsCharts';
 
 export default function ReportsScreen() {
   const router = useRouter();
@@ -134,6 +135,9 @@ export default function ReportsScreen() {
             ))}
           </View>
         </ScrollView>
+
+        {/* Analytics charts */}
+        <AnalyticsCharts sessions={filtered} />
 
         {/* Session list */}
         {filtered.length === 0 ? (

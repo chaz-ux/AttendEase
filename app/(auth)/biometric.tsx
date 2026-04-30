@@ -37,28 +37,24 @@ export default function BiometricScreen() {
     }).start();
 
     try {
-      // Step 1 — verify biometric (proves it's physically the same person)
+      // Verify biometric (proves it's physically the same person)
       await signInWithBiometric();
 
-      // Step 2 — complete the actual Supabase sign in using
-      // the credentials passed from the login screen
+      // If email/password params exist, complete the sign in
       if (email && password) {
         await signInWithPassword(email, password);
       }
-      // If no email/password params, a session already exists
-      // (user reopened app and was sent here to re-verify identity)
-      // _layout.tsx will handle routing once session is confirmed
+      // If no params, session already exists in storage
+      // _layout.tsx will handle routing once verified
 
       setState('success');
-      // _layout.tsx detects the new session and routes automatically
-      // No manual router.replace needed here
-
+      // _layout.tsx detects session and routes automatically
     } catch (e: any) {
       setState('error');
       Alert.alert('Verification failed', e.message);
       setTimeout(() => {
-        setState('idle');
-        barAnim.setValue(0);
+        // Fall back to password login
+        router.replace('/(auth)/login');
       }, 2000);
     }
   };
@@ -112,15 +108,28 @@ export default function BiometricScreen() {
           disabled={state !== 'idle'}
         >
           <Text style={styles.btnScanText}>
-            {state === 'idle'     ? 'Touch Sensor to Verify'
-            : state === 'scanning' ? 'Scanning…'
-            : state === 'success'  ? '✓ Verified'
-            : 'Try Again'}
+            {state === 'idle' ? 'Touch Sensor to Verify'
+              : state === 'scanning' ? 'Scanning…'
+              : state === 'success' ? '✓ Verified'
+              : 'Try Again'}
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.btnGhost} onPress={() => router.back()}>
-          <Text style={styles.btnGhostText}>Use Password Instead</Text>
+        {/* Skip biometric — complete sign in with password only */}
+        <TouchableOpacity
+          style={styles.btnGhost}
+          onPress={async () => {
+            if (!email || !password) { router.back(); return; }
+            try {
+              await signInWithPassword(email as string, password as string);
+              // _layout.tsx handles routing after session is set
+            } catch (e: any) {
+              Alert.alert('Sign in failed', e.message);
+              router.back();
+            }
+          }}
+        >
+          <Text style={styles.btnGhostText}>Skip — Sign In with Password Only</Text>
         </TouchableOpacity>
       </View>
     </View>

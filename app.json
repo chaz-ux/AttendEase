@@ -16,45 +16,51 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.attendease.jkuat",
       "adaptiveIcon": {
-        "backgroundColor": "#0d1f14",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "monochromeImage": "./assets/android-icon-monochrome.png",
+        "backgroundColor": "#0d1f14"
       },
-      "predictiveBackGestureEnabled": false,
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
         "USE_BIOMETRIC",
         "USE_FINGERPRINT",
-        "CAMERA"
+        "CAMERA",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
       ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-     "expo-router",
-     "expo-secure-store",
-     [
-     "expo-location",
-       {
-      "locationAlwaysAndWhenInUsePermission": "AttendEase needs your location to verify you are inside the classroom."
-       }
-     ],
-     [
-      "expo-camera",
-      {
-      "cameraPermission": "AttendEase needs camera access for selfie verification."
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "AttendEase needs your location to verify you are inside the classroom."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "AttendEase uses Face ID to verify your identity."
+        }
+      ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "34ac6924-45b5-4743-8eca-90edc4a8c2e7"
       }
-     ],
-     [
-     "expo-local-authentication",
-      {
-      "faceIDPermission": "AttendEase uses Face ID to verify your identity."
-      }
-     ]
-  ]
+    }
   }
 }

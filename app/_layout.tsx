@@ -15,10 +15,13 @@ export default function RootLayout() {
   useEffect(() => {
     // Check existing session on mount
     supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
       if (data.session) {
+        // Session exists — skip login and go to biometric
+        setSession(data.session);
+        router.replace('/(auth)/biometric');
         fetchRole(data.session.user.id);
       } else {
+        // No session — go to login
         setLoading(false);
       }
     });
@@ -38,11 +41,13 @@ export default function RootLayout() {
   }, []);
 
   const fetchRole = async (userId: string) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', userId)
       .single();
+    
+    console.log('fetchRole result:', JSON.stringify(data), JSON.stringify(error));
     setRole(data?.role ?? 'student');
     setLoading(false);
   };

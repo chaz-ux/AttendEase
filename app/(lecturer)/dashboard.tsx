@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView,
-  Alert, ActivityIndicator, RefreshControl
+  Alert, ActivityIndicator, RefreshControl, Platform, TextInput
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
@@ -9,13 +9,19 @@ import { useAuth } from '../../hooks/useAuth';
 import { checkGeofence, getCurrentPosition } from '../../lib/geofence';
 
 type Unit = {
-  id: string; code: string; name: string;
-  classrooms: { id: string; name: string; center_lat: number; center_lng: number; radius_meters: number };
+  id: string;
+  code: string;
+  name: string;
 };
 type ActiveSession = {
-  id: string; started_at: string; attendance_open: boolean;
-  units: { code: string; name: string };
-  classrooms: { name: string };
+  id: string;
+  started_at: string;
+  attendance_open: boolean;
+  center_lat: number;
+  center_lng: number;
+  radius_meters: number;
+  units: { code: string; name: string } | null;
+  room_label: string | null;
 };
 type AttendanceEntry = {
   student_id: string; checked_in_at: string; is_verified: boolean;
@@ -29,6 +35,7 @@ export default function LecturerDashboard() {
   const [profile, setProfile] = useState<{ full_name: string } | null>(null);
   const [units, setUnits] = useState<Unit[]>([]);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
+  const [roomLabel, setRoomLabel] = useState('');
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
   const [attendance, setAttendance] = useState<AttendanceEntry[]>([]);
   const [enrolledCount, setEnrolledCount] = useState(0);
@@ -106,20 +113,16 @@ export default function LecturerDashboard() {
   };
 
   const loadUnits = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('units')
-      .select(`
-        id, code, name,
-        classrooms:classroom_id (id, name, center_lat, center_lng, radius_meters)
-      `)
+      .select('id, code, name')
       .eq('lecturer_id', user!.id);
 
-    if (data && data.length > 0) {
-      setUnits(data as any);
-      const first = data[0] as any;
-      setSelectedUnit(first);
-      await loadUnitData(first);
-    }
+    if (!data || data.length === 0) return;
+
+    setUnits(data as any);
+    setSelectedUnit(data[0] as any);
+    await loadUnitData(data[0] as any);
   };
 
   const loadUnitData = async (unit: Unit) => {
@@ -181,59 +184,54 @@ export default function LecturerDashboard() {
   };
 
   const handleStartSession = async () => {
-  if (!selectedUnit) return;
-  setStarting(true);
-  try {
-    // Get lecturer's current GPS position — this becomes the geofence center
-    const pos = await getCurrentPosition();
-
-    if (pos.accuracy > 20) {
-      Alert.alert(
-        'Weak GPS signal',
-        `Current accuracy is ±${Math.round(pos.accuracy)}m. Move to a window or open area for better accuracy, or proceed anyway.`,
-        [
-          { text: 'Wait for better signal', style: 'cancel', onPress: () => setStarting(false) },
-          { text: 'Start anyway', onPress: () => doStartSession(pos) },
-        ]
-      );
+    console.log('=== handleStartSession called ===');
+    console.log('selectedUnit:', JSON.stringify(selectedUnit));
+    console.log('user:', user?.id);
+    
+    if (!selectedUnit) {
+      console.log('BLOCKED: no selectedUnit');
       return;
     }
-
-    await doStartSession(pos);
-  } catch (e: any) {
-    Alert.alert('Error', e.message);
-    setStarting(false);
-  }
-};
+    
+    setStarting(true);
+    console.log('Starting set to true, getting position...');
+    
+    try {
+      const pos = await getCurrentPosition();
+      console.log('Got position:', JSON.stringify(pos));
+      await doStartSession(pos);
+    } catch (e: any) {
+      console.log('ERROR in handleStartSession:', e.message, JSON.stringify(e));
+      Alert.alert('Error', e.message ?? 'Unknown error');
+      setStarting(false);
+    }
+  };
 
 const doStartSession = async (pos: { lat: number; lng: number; accuracy: number }) => {
   try {
+    const insertPayload = {
+      unit_id: selectedUnit!.id,
+      classroom_id: null,
+      lecturer_id: user!.id,
+      attendance_open: true,
+      started_at: new Date().toISOString(),
+      center_lat: pos.lat,
+      center_lng: pos.lng,
+      radius_meters: selectedRadiusMeters,
+      room_label: roomLabel.trim() || 'Current Location',
+    };
+
     const { data, error } = await supabase
       .from('sessions')
-      .insert({
-        unit_id: selectedUnit!.id,
-        classroom_id: selectedUnit!.classrooms?.id ?? null,
-        lecturer_id: user!.id,
-        attendance_open: true,
-        started_at: new Date().toISOString(),
-        // Geofence center = lecturer's position right now
-        center_lat: pos.lat,
-        center_lng: pos.lng,
-        // 50m default — covers most lecture rooms with GPS drift buffer
-        radius_meters: selectedRadiusMeters,
-      })
-      .select(`
-        id, started_at, attendance_open, center_lat, center_lng, radius_meters,
-        units:unit_id (code, name),
-        classrooms:classroom_id (name)
-      `)
+      .insert(insertPayload)
+      .select(`id, started_at, attendance_open, center_lat, center_lng, radius_meters, room_label, units:unit_id (code, name)`)
       .single();
 
     if (error) throw error;
     setActiveSession(data as any);
     setAttendance([]);
   } catch (e: any) {
-    Alert.alert('Error', e.message);
+    Alert.alert('Error', e.message ?? 'Unknown error');
   } finally {
     setStarting(false);
   }
@@ -243,7 +241,7 @@ const doStartSession = async (pos: { lat: number; lng: number; accuracy: number 
     if (!activeSession) return;
     Alert.alert(
       'End session?',
-      `This will close attendance and generate the report for ${activeSession.units.code}.`,
+      `This will close attendance and generate the report for ${activeSession.units?.code ?? 'this unit'}.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -339,7 +337,7 @@ const doStartSession = async (pos: { lat: number; lng: number; accuracy: number 
           <View style={styles.unitCard}>
             <Text style={styles.unitCardLabel}>UNIT</Text>
             <Text style={styles.unitCardName}>{selectedUnit.code} — {selectedUnit.name}</Text>
-            <Text style={styles.unitCardSub}>{selectedUnit.classrooms?.name ?? 'No room set'}</Text>
+            <Text style={styles.unitCardSub}>Add optional room label when you start</Text>
           </View>
         )}
 
@@ -365,25 +363,59 @@ const doStartSession = async (pos: { lat: number; lng: number; accuracy: number 
             <Text style={{ fontSize: 32 }}>📡</Text>
             <Text style={styles.startTitle}>Ready to start class?</Text>
             <Text style={styles.startSub}>
-              Starting opens GPS attendance for all students in {selectedUnit?.classrooms?.name ?? 'your classroom'}.
+              Starting opens GPS attendance for all nearby students.
             </Text>
             {selectedUnit && (
               <View style={styles.startMeta}>
-                {[
-                  { label: 'Room', value: selectedUnit.classrooms?.name ?? '—' },
-                  { label: 'Geofence', value: `${selectedUnit.classrooms?.radius_meters ?? 30}m radius` },
-                ].map(item => (
-                  <View key={item.label} style={styles.startMetaRow}>
-                    <Text style={styles.startMetaLabel}>{item.label}</Text>
-                    <Text style={styles.startMetaVal}>{item.value}</Text>
+                {/* Room label — free text, optional */}
+                <View style={styles.startMetaRow}>
+                  <Text style={styles.startMetaLabel}>Room</Text>
+                  <TextInput
+                    style={styles.roomInput}
+                    placeholder="e.g. NCLB 3, CLB 101..."
+                    placeholderTextColor="#506659"
+                    value={roomLabel}
+                    onChangeText={setRoomLabel}
+                    autoCorrect={false}
+                  />
+                </View>
+
+                {/* Geofence info */}
+                <View style={styles.startMetaRow}>
+                  <Text style={styles.startMetaLabel}>Geofence center</Text>
+                  <Text style={styles.startMetaVal}>Your current GPS position</Text>
+                </View>
+
+                {/* Radius picker */}
+                <View style={styles.startMetaRow}>
+                  <Text style={styles.startMetaLabel}>Radius</Text>
+                  <View style={{ flexDirection: 'row', gap: 6 }}>
+                    {[30, 50, 75, 100].map(r => (
+                      <TouchableOpacity
+                        key={r}
+                        style={[
+                          styles.radiusChip,
+                          selectedRadiusMeters === r && styles.radiusChipActive
+                        ]}
+                        onPress={() => setSelectedRadiusMeters(r)}
+                      >
+                        <Text style={[
+                          styles.radiusChipText,
+                          selectedRadiusMeters === r && styles.radiusChipTextActive
+                        ]}>
+                          {r}m
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
                   </View>
-                ))}
+                </View>
               </View>
             )}
             <TouchableOpacity
               style={styles.btnStart}
               onPress={handleStartSession}
               disabled={starting || !selectedUnit}
+              activeOpacity={0.5}
             >
               {starting
                 ? <ActivityIndicator color="#fff" />
@@ -401,8 +433,8 @@ const doStartSession = async (pos: { lat: number; lng: number; accuracy: number 
                     <View style={styles.liveDot} />
                     <Text style={styles.livePillText}>LIVE</Text>
                   </View>
-                  <Text style={styles.liveTitle}>{activeSession.units.code}</Text>
-                  <Text style={styles.liveSub}>{activeSession.classrooms.name}</Text>
+                  <Text style={styles.liveTitle}>{activeSession.units?.code ?? '—'}</Text>
+                  <Text style={styles.liveSub}>{(activeSession as any).room_label ?? 'Current Location'}</Text>
                 </View>
                 <Text style={styles.liveTimer}>{elapsed}</Text>
               </View>
@@ -479,49 +511,12 @@ const doStartSession = async (pos: { lat: number; lng: number; accuracy: number 
           </>
         )}
       </ScrollView>
-      <View style={styles.startMeta}>
-  {[
-    { label: 'Room', value: selectedUnit?.classrooms?.name ?? 'Current location' },
-    { label: 'Geofence center', value: 'Your current GPS position' },
-  ].map(item => (
-    <View key={item.label} style={styles.startMetaRow}>
-      <Text style={styles.startMetaLabel}>{item.label}</Text>
-      <Text style={styles.startMetaVal}>{item.value}</Text>
-    </View>
-  ))}
-
-  {/* Radius picker */}
-  <View style={styles.startMetaRow}>
-    <Text style={styles.startMetaLabel}>Radius</Text>
-    <View style={{ flexDirection: 'row', gap: 6 }}>
-      {[30, 50, 75, 100].map(r => (
-        <TouchableOpacity
-          key={r}
-          style={[
-            styles.radiusChip,
-            selectedRadiusMeters === r && styles.radiusChipActive
-          ]}
-          onPress={() => setSelectedRadiusMeters(r)}
-        >
-          <Text style={[
-            styles.radiusChipText,
-            selectedRadiusMeters === r && styles.radiusChipTextActive
-          ]}>
-            {r}m
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  </View>
-</View>
 
       {/* Bottom nav */}
       <View style={styles.bottomNav}>
         {[
           { icon: '🏠', label: 'HOME', route: '/(lecturer)/dashboard', active: true },
-          { icon: '👥', label: 'ROSTER', route: null, active: false },
           { icon: '📊', label: 'REPORTS', route: '/(lecturer)/reports', active: false },
-          { icon: '👤', label: 'PROFILE', route: null, active: false },
           { icon: '🚪', label: 'LOG OUT', route: null, active: false, onPress: () => {
             Alert.alert('Sign out', 'Are you sure?', [
               { text: 'Cancel', style: 'cancel' },
@@ -532,7 +527,10 @@ const doStartSession = async (pos: { lat: number; lng: number; accuracy: number 
           <TouchableOpacity
             key={item.label}
             style={styles.navItem}
-            onPress={() => item.route && router.push(item.route as any)}
+            onPress={() => {
+              if (item.onPress) item.onPress();
+              else if (item.route) router.push(item.route as any);
+            }}
           >
             <Text style={{ fontSize: 20, opacity: item.active ? 1 : 0.35 }}>{item.icon}</Text>
             <Text style={[styles.navLabel, item.active && styles.navLabelActive]}>{item.label}</Text>
@@ -578,6 +576,13 @@ const styles = StyleSheet.create({
   startMetaRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 8, paddingHorizontal: 12 },
   startMetaLabel: { fontSize: 11, color: C.textDim },
   startMetaVal: { fontSize: 11, color: C.textMuted },
+  roomInput: {
+    fontSize: 12,
+    color: '#f0ede6',
+    flex: 1,
+    textAlign: 'right',
+    paddingVertical: 2,
+  },
   btnStart: { width: '100%', backgroundColor: C.green, borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
   btnStartText: { fontSize: 15, fontWeight: '700', color: '#fff', letterSpacing: 0.4 },
   liveCard: { borderRadius: 16, overflow: 'hidden' },
