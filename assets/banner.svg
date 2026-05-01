@@ -1,0 +1,99 @@
+<svg width="100%" viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>AttendEase — GPS Attendance System</title>
+  <desc>A dark green banner showing the AttendEase logo, tagline, and animated GPS pulse rings</desc>
+
+  <!-- Background -->
+  <rect width="680" height="260" fill="#0d1f14"/>
+
+  <!-- Subtle grid pattern -->
+  <defs>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#1a3324" stroke-width="0.5"/>
+    </pattern>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1a6b3c" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#0d1f14" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="pulse-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2a9d5c" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#2a9d5c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="680" height="260" fill="url(#grid)"/>
+  <rect width="680" height="260" fill="url(#glow)"/>
+
+  <!-- GPS pulse rings (right side) -->
+  <g transform="translate(560, 130)" opacity="0.6">
+    <circle cx="0" cy="0" r="18" fill="#2a9d5c" opacity="0.9"/>
+    <circle cx="0" cy="0" r="11" fill="#0d1f14"/>
+    <circle cx="0" cy="0" r="5" fill="#2a9d5c"/>
+
+    <circle cx="0" cy="0" r="32" fill="none" stroke="#2a9d5c" stroke-width="1" opacity="0.5"/>
+    <circle cx="0" cy="0" r="48" fill="none" stroke="#2a9d5c" stroke-width="0.8" opacity="0.35"/>
+    <circle cx="0" cy="0" r="66" fill="none" stroke="#2a9d5c" stroke-width="0.6" opacity="0.2"/>
+    <circle cx="0" cy="0" r="86" fill="none" stroke="#2a9d5c" stroke-width="0.4" opacity="0.12"/>
+
+    <!-- Geofence radius label -->
+    <text x="52" y="-44" font-family="monospace" font-size="9" fill="#2a9d5c" opacity="0.7">50m radius</text>
+    <line x1="48" y1="-40" x2="0" y2="0" stroke="#2a9d5c" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.4"/>
+  </g>
+
+  <!-- Small student dots inside geofence -->
+  <circle cx="548" cy="118" r="3" fill="#c9a84c" opacity="0.8"/>
+  <circle cx="572" cy="142" r="3" fill="#c9a84c" opacity="0.8"/>
+  <circle cx="538" cy="138" r="3" fill="#2a9d5c" opacity="0.9"/>
+
+  <!-- Checkmark on verified dot -->
+  <text x="535" y="141" font-size="6" fill="#0d1f14" font-weight="bold">✓</text>
+
+  <!-- Left decorative line -->
+  <line x1="40" y1="130" x2="100" y2="130" stroke="#1a6b3c" stroke-width="1" opacity="0.5"/>
+  <circle cx="40" cy="130" r="2" fill="#2a9d5c" opacity="0.5"/>
+
+  <!-- Logo mark -->
+  <rect x="104" y="62" width="52" height="52" rx="14" fill="#1a6b3c" stroke="#c9a84c" stroke-width="1.5" opacity="0.9"/>
+  <text x="130" y="95" text-anchor="middle" font-family="monospace" font-size="26" font-weight="bold" fill="#ffffff">A</text>
+
+  <!-- App name -->
+  <text x="168" y="96" font-family="Georgia, serif" font-size="38" font-weight="bold" fill="#f0ede6" letter-spacing="-1">AttendEase</text>
+
+  <!-- Tagline -->
+  <text x="168" y="118" font-family="monospace" font-size="11" fill="#8fa898" letter-spacing="2">YOU CAN'T FAKE BEING THERE.</text>
+
+  <!-- Divider -->
+  <line x1="104" y1="134" x2="490" y2="134" stroke="#1a3324" stroke-width="1"/>
+
+  <!-- Tech pills -->
+  <g transform="translate(104, 148)">
+    <!-- React Native -->
+    <rect x="0" y="0" width="94" height="20" rx="10" fill="#122619" stroke="#1a6b3c" stroke-width="1"/>
+    <text x="47" y="13" text-anchor="middle" font-family="monospace" font-size="9" fill="#2a9d5c">React Native</text>
+
+    <!-- Expo -->
+    <rect x="102" y="0" width="54" height="20" rx="10" fill="#122619" stroke="#1a6b3c" stroke-width="1"/>
+    <text x="129" y="13" text-anchor="middle" font-family="monospace" font-size="9" fill="#2a9d5c">Expo</text>
+
+    <!-- Supabase -->
+    <rect x="164" y="0" width="74" height="20" rx="10" fill="#122619" stroke="#1a6b3c" stroke-width="1"/>
+    <text x="201" y="13" text-anchor="middle" font-family="monospace" font-size="9" fill="#2a9d5c">Supabase</text>
+
+    <!-- TypeScript -->
+    <rect x="246" y="0" width="80" height="20" rx="10" fill="#122619" stroke="#1a6b3c" stroke-width="1"/>
+    <text x="286" y="13" text-anchor="middle" font-family="monospace" font-size="9" fill="#2a9d5c">TypeScript</text>
+
+    <!-- GPS -->
+    <rect x="334" y="0" width="44" height="20" rx="10" fill="#1a3324" stroke="#c9a84c" stroke-width="1"/>
+    <text x="356" y="13" text-anchor="middle" font-family="monospace" font-size="9" fill="#c9a84c">GPS</text>
+  </g>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="240" width="680" height="20" fill="#122619"/>
+  <text x="340" y="254" text-anchor="middle" font-family="monospace" font-size="9" fill="#506659" letter-spacing="3">JKUAT · MOBILE COMPUTING PROJECT 2026 · SCM211-0631/2022</text>
+
+  <!-- Corner accent -->
+  <line x1="0" y1="0" x2="60" y2="0" stroke="#2a9d5c" stroke-width="2"/>
+  <line x1="0" y1="0" x2="0" y2="40" stroke="#2a9d5c" stroke-width="2"/>
+  <line x1="680" y1="260" x2="620" y2="260" stroke="#c9a84c" stroke-width="1.5"/>
+  <line x1="680" y1="260" x2="680" y2="220" stroke="#c9a84c" stroke-width="1.5"/>
+</svg>
