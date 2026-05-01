@@ -1,15 +1,6 @@
 <div align="center">
-
-```
-░█████╗░████████╗████████╗███████╗███╗░░██╗██████╗░███████╗░█████╗░░██████╗███████╗
-██╔══██╗╚══██╔══╝╚══██╔══╝██╔════╝████╗░██║██╔══██╗██╔════╝██╔══██╗██╔════╝██╔════╝
-███████║░░░██║░░░░░░██║░░░█████╗░░██╔██╗██║██║░░██║█████╗░░███████║╚█████╗░█████╗░░
-██╔══██║░░░██║░░░░░░██║░░░██╔══╝░░██║╚████║██║░░██║██╔══╝░░██╔══██║░╚═══██╗██╔══╝░░
-██║░░██║░░░██║░░░░░░██║░░░███████╗██║░╚███║██████╔╝███████╗██║░░██║██████╔╝███████╗
-╚═╝░░╚═╝░░░╚═╝░░░░░╚═╝░░░╚══════╝╚═╝░░╚══╝╚═════╝░╚══════╝╚═╝░░╚═╝╚═════╝░╚══════╝
-```
-
-### *You can't fake being there.*
+  <img src="./assets/banner.svg" width="100%" alt="AttendEase Banner"/>
+</div>
 
 <br/>
 
@@ -280,12 +271,12 @@ npx eas build --platform android --profile preview
 
 | Role | Login ID | Password | Name |
 |------|----------|----------|------|
-| 🎓 Student | `SCM211-0631/2022` | `Jkuat@2024` | Kariuki Charles Chege |
-| 🎓 Student | `SCM211-0632/2022` | `Jkuat@2024` | Achieng Grace |
-| 🎓 Student | `SCM211-0633/2022` | `Jkuat@2024` | Mutua Brian Kioko |
-| 👨‍🏫 Lecturer | `lecturer001` | `Jkuat@2024` | Dr. Mwangi Joseph |
-| 👩‍🏫 Lecturer | `lecturer002` | `Jkuat@2024` | Dr. Wanjiku Njeri |
-| 🔧 Admin | `admin` | `Jkuat@2024` | System Administrator |
+| 🎓 Student | `SCM211-0631/2022` | `Test1234!` | Kariuki Charles Chege |
+| 🎓 Student | `SCM211-0632/2022` | `Test1234!` | Achieng Grace |
+| 🎓 Student | `SCM211-0633/2022` | `Test1234!` | Mutua Brian Kioko |
+| 👨‍🏫 Lecturer | `lecturer001` | `Test1234!` | Dr. Mwangi Joseph |
+| 👩‍🏫 Lecturer | `lecturer002` | `Test1234!` | Dr. Wanjiku Njeri |
+| 🔧 Admin | `admin` | `Test1234!` | System Administrator |
 
 > **Login format:** Students enter reg number (e.g. `SCM211-0631/2022`), staff enter ID (e.g. `lecturer001`). The app auto-constructs the `@jkuat.ac.ke` email.
 
