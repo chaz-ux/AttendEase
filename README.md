@@ -1,590 +1,401 @@
-# AttendEase - Cross-Platform GPS Attendance Tracking System
+<div align="center">
 
-![React Native](https://img.shields.io/badge/React%20Native-0.76.9-61dafb?logo=react)
-![Expo](https://img.shields.io/badge/Expo-52.0.0-000020?logo=expo)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178c6?logo=typescript)
-![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?logo=supabase)
+```
+░█████╗░████████╗████████╗███████╗███╗░░██╗██████╗░███████╗░█████╗░░██████╗███████╗
+██╔══██╗╚══██╔══╝╚══██╔══╝██╔════╝████╗░██║██╔══██╗██╔════╝██╔══██╗██╔════╝██╔════╝
+███████║░░░██║░░░░░░██║░░░█████╗░░██╔██╗██║██║░░██║█████╗░░███████║╚█████╗░█████╗░░
+██╔══██║░░░██║░░░░░░██║░░░██╔══╝░░██║╚████║██║░░██║██╔══╝░░██╔══██║░╚═══██╗██╔══╝░░
+██║░░██║░░░██║░░░░░░██║░░░███████╗██║░╚███║██████╔╝███████╗██║░░██║██████╔╝███████╗
+╚═╝░░╚═╝░░░╚═╝░░░░░╚═╝░░░╚══════╝╚═╝░░╚══╝╚═════╝░╚══════╝╚═╝░░╚═╝╚═════╝░╚══════╝
+```
 
-A modern attendance tracking solution for educational institutions, enabling lecturers to start GPS-based sessions and students to check in via biometric verification or password-protected sign-in.
+### *You can't fake being there.*
 
-## 📱 Overview
+<br/>
 
-AttendEase eliminates manual attendance taking through an intelligent geofencing system. Lecturers start a session with GPS coordinates and a radius, while students verify their identity (biometric or password) and check in when within range. Real-time attendance tracking with persistent session management across app restarts.
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-0d1f14?style=for-the-badge&logo=expo&logoColor=2a9d5c)](https://expo.dev)
+[![React Native](https://img.shields.io/badge/React%20Native-0.76-0d1f14?style=for-the-badge&logo=react&logoColor=2a9d5c)](https://reactnative.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-0d1f14?style=for-the-badge&logo=supabase&logoColor=2a9d5c)](https://supabase.com)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-0d1f14?style=for-the-badge&logo=typescript&logoColor=2a9d5c)](https://typescriptlang.org)
+[![EAS Build](https://img.shields.io/badge/EAS-Production%20Ready-0d1f14?style=for-the-badge&logo=expo&logoColor=c9a84c)](https://expo.dev/eas)
 
-### Key Features
+<br/>
 
-- **Biometric Authentication** - Fingerprint/Face ID with password fallback
-- **GPS-Based Geofencing** - Lecturer's location = attendance zone center
-- **Real-Time Roster** - Live attendance updates via Supabase realtime subscriptions
-- **Cross-Platform** - Native (iOS/Android) and Web support
-- **Session Management** - Start/end attendance sessions with instant updates
-- **Attendance Reports** - Historical data with analytics
-- **Platform-Aware Storage** - Secure credential storage (SecureStore on mobile, localStorage on web)
+> **AttendEase** is a GPS-verified, biometric-secured attendance system built for JKUAT.  
+> No proxies. No paper. No excuses.
+
+<br/>
 
 ---
 
-## 🏗 Architecture
+</div>
 
-### Stack
+## 📡 &nbsp;What Is This?
 
-| Layer | Technology |
-|-------|-----------|
-| **Frontend Framework** | React Native 0.76.9, React 18.3.1 |
-| **Navigation** | expo-router 4.0.22 (file-based routing) |
-| **Backend** | Supabase (PostgreSQL, Realtime, Auth) |
-| **State Management** | React Hooks (useState, useEffect, useRef) |
-| **Storage** | Platform-aware adapter (localStorage/SecureStore) |
-| **Geolocation** | expo-location (native), navigator.geolocation (web) |
-| **Build System** | EAS (Expo Application Services) |
-| **Type Safety** | TypeScript with Supabase types |
+Imagine a lecturer walks into a room, opens an app, taps one button — and attendance is **open**. The app captures their GPS position and draws an invisible fence around the room. Every student who walks in, pulls out their phone, and marks present gets verified by the server in real time. If they're outside the fence? Rejected. Different device? Rejected. Already checked in? Rejected.
 
-### Project Structure
+That's AttendEase. Built for **JKUAT**, designed for scale.
+
+<br/>
+
+---
+
+## ⚡ &nbsp;Feature Breakdown
+
+<table>
+<tr>
+<td width="50%">
+
+### 🔐 &nbsp;Authentication
+- Email + Password sign-in
+- **Biometric verification** (fingerprint / face ID)
+- Role-based routing — Student, Lecturer, Admin land on their own dashboards automatically
+- Persistent sessions via SecureStore (mobile) and localStorage (web)
+- Device fingerprinting — your account is locked to your phone
+
+</td>
+<td width="50%">
+
+### 📍 &nbsp;GPS Geofencing
+- Lecturer's live position becomes the **geofence center**
+- Configurable radius: 30m / 50m / 75m / 100m
+- Haversine formula for accurate spherical distance
+- ±10m GPS drift buffer (real-world tolerance)
+- Server-side re-verification via Supabase Edge Function
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 🎯 &nbsp;Session Management
+- Instant session creation with room label
+- Live attendance counter updates in real time
+- Supabase Realtime subscriptions — roster updates the second a student checks in
+- Session timer running since `started_at`
+- One-tap end session → attendance closes, report generated
+
+</td>
+<td width="50%">
+
+### 📊 &nbsp;Reports & Analytics
+- Per-session attendance breakdown
+- CSV export (share directly from phone)
+- Analytics: bar chart per session, trend line, quality distribution
+- Admin panel: full platform overview, all users, all sessions
+- Historical logs for every student
+
+</td>
+</tr>
+</table>
+
+<br/>
+
+---
+
+## 🏗 &nbsp;Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        CLIENT LAYER                          │
+│                                                              │
+│   React Native (Expo)  ─────────────────────────────────    │
+│   ├── expo-router      (file-based navigation)              │
+│   ├── expo-location    (GPS on native)                      │
+│   ├── expo-local-auth  (biometric)                          │
+│   ├── expo-secure-store(credential storage)                 │
+│   └── navigator.geo    (GPS on web)                         │
+└───────────────────────┬─────────────────────────────────────┘
+                        │ HTTPS / WebSocket
+┌───────────────────────▼─────────────────────────────────────┐
+│                      SUPABASE LAYER                          │
+│                                                              │
+│   ├── Auth             (JWT sessions, role metadata)        │
+│   ├── PostgreSQL        (profiles, units, sessions, logs)   │
+│   ├── Row Level Security(per-user data isolation)           │
+│   ├── Realtime          (live attendance subscriptions)     │
+│   └── Edge Functions    (server-side GPS verification)      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+<br/>
+
+---
+
+## 📂 &nbsp;Project Structure
 
 ```
 AttendEase/
-├── app/
-│   ├── _layout.tsx              # Root layout with auth routing
+│
+├── app/                          # Expo Router — every file is a route
+│   ├── _layout.tsx               # Root: auth guard + role-based routing
+│   ├── index.tsx                 # Entry spinner
+│   │
 │   ├── (auth)/
-│   │   ├── login.tsx            # Email/password sign-in
-│   │   ├── biometric.tsx        # Biometric verification + password fallback
-│   │   └── _layout.tsx          # Auth route group layout
+│   │   ├── login.tsx             # Role selector + credentials
+│   │   └── biometric.tsx         # Fingerprint verification + fallback
+│   │
 │   ├── (student)/
-│   │   ├── _layout.tsx          # Student route protection
-│   │   ├── home.tsx             # Check-in interface with GPS geofencing
-│   │   ├── history.tsx          # Attendance history view
-│   │   └── _layout.tsx          # Student nav layout
+│   │   ├── home.tsx              # GPS check-in interface
+│   │   └── history.tsx           # Personal attendance history
+│   │
 │   ├── (lecturer)/
-│   │   ├── _layout.tsx          # Lecturer route protection
-│   │   ├── dashboard.tsx        # Session management + live roster
-│   │   ├── reports.tsx          # Attendance analytics
-│   │   └── _layout.tsx          # Lecturer nav layout
-│   ├── (admin)/
-│   │   ├── calibrate.tsx        # GPS calibration tool
-│   │   └── _layout.tsx          # Admin nav layout
-│   └── index.tsx                # Entry point
+│   │   ├── dashboard.tsx         # Session control + live roster
+│   │   └── reports.tsx           # Analytics + CSV export
+│   │
+│   └── (admin)/
+│       ├── dashboard.tsx         # Platform overview + user management
+│       └── calibrate.tsx         # GPS calibration tool
+│
 ├── components/
-│   ├── AttendanceButton.tsx     # Shared check-in button
-│   ├── GPSStatusBadge.tsx       # GPS signal indicator
-│   ├── ReportCard.tsx           # Report display component
-│   └── AnalyticsCharts.tsx      # Analytics placeholder
+│   ├── AttendanceButton.tsx      # Animated check-in button (5 states)
+│   ├── GPSStatusBadge.tsx        # Live GPS signal indicator
+│   ├── ReportCard.tsx            # Session report card
+│   └── AnalyticsCharts.tsx       # Bar chart + trend line + quality ring
+│
 ├── hooks/
-│   ├── useAuth.ts              # Authentication logic
-│   └── useLocation.ts          # Geolocation hook
+│   ├── useAuth.ts                # Auth state + biometric + signOut
+│   └── useLocation.ts            # GPS + geofence hook
+│
 ├── lib/
-│   ├── supabase.ts             # Supabase client + platform-aware storage
-│   └── geofence.ts             # GPS calculations + geofence logic
-├── types/
-│   └── index.ts                # TypeScript definitions
-├── assets/                     # Images, icons, fonts
-├── app.json                    # Expo app config
-├── eas.json                    # EAS build config
-├── tsconfig.json               # TypeScript config
-├── package.json                # Dependencies
-└── .env                        # Environment variables (local only)
+│   ├── supabase.ts               # Client + platform-aware storage adapter
+│   └── geofence.ts               # Haversine distance + geofence logic
+│
+├── supabase/
+│   └── functions/
+│       └── verify-attendance/
+│           └── index.ts          # Edge function: server-side GPS check
+│
+└── types/
+    └── index.ts                  # Shared TypeScript definitions
 ```
+
+<br/>
 
 ---
 
-## 🚀 Quick Start
+## 🗄 &nbsp;Database Schema
 
-### Prerequisites
-
-- Node.js 18+ with npm/yarn
-- Expo CLI: `npm install -g expo-cli`
-- Supabase account with PostgreSQL database
-- Android Studio (for native builds) or Xcode (iOS)
-
-### Installation
-
-1. **Clone Repository**
-   ```bash
-   git clone https://github.com/chaz-ux/AttendEase.git
-   cd AttendEase
-   ```
-
-2. **Install Dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Configure Environment**
-   Create `.env` file with Supabase credentials:
-   ```env
-   EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   ```
-
-4. **Start Development Server**
-   ```bash
-   npx expo start --clear
-   ```
-   - Press `w` for web
-   - Press `i` for iOS simulator
-   - Press `a` for Android emulator
-   - Scan QR with Expo Go app for physical device
-
-### Building for Production
-
-**Android APK:**
-```bash
-npx eas build --platform android --profile preview
+```sql
+universities ──┬── buildings ── classrooms
+               │
+               ├── profiles (students / lecturers / admins)
+               │       │
+               │       ├── units (lecturer_id → profiles)
+               │       │       │
+               │       │       └── sessions (unit_id → units)
+               │       │               │
+               │       └───────────────└── attendance_logs
+               │                           (student_id + session_id)
+               └── attendance_logs (university_id)
 ```
 
-**Web (Static Build):**
-```bash
-npx expo export --platform web
-# Output in dist/ folder
-```
+### Key Design Decisions
+
+| Decision | Reason |
+|----------|--------|
+| `center_lat/lng` on `sessions` | Lecturer's live GPS = geofence center. No pre-configured rooms needed. |
+| `room_label` (free text) | Venues change. Flexibility beats rigidity. |
+| `device_id` on `attendance_logs` | Anti-proxy: one device per student account |
+| `unique(session_id, student_id)` | Database-enforced no double check-ins |
+| Edge function verification | Client GPS can be spoofed. Server re-checks. |
+
+<br/>
 
 ---
 
-## 📊 Database Schema
-
-### Tables
-
-#### `profiles`
-Stores user information and role-based access control.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | uuid | User ID (FK to auth.users) |
-| `email` | text | User email |
-| `full_name` | text | Display name |
-| `reg_number` | text | Student registration number (optional) |
-| `role` | text | 'student', 'lecturer', or 'admin' |
-| `university_id` | uuid | Institution reference |
-| `created_at` | timestamp | Account creation date |
-
-#### `units`
-Course/class sections that lecturers teach.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | uuid | Primary key |
-| `code` | text | Unit code (e.g., "CS101") |
-| `name` | text | Unit name |
-| `lecturer_id` | uuid | FK to profiles |
-| `university_id` | uuid | Institution reference |
-| `created_at` | timestamp | Creation date |
-
-#### `sessions`
-Attendance sessions started by lecturers.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | uuid | Primary key |
-| `unit_id` | uuid | FK to units |
-| `lecturer_id` | uuid | FK to profiles |
-| `classroom_id` | uuid | Optional FK to classrooms (nullable) |
-| `room_label` | text | Free-text room identifier |
-| `started_at` | timestamp | Session start time |
-| `ended_at` | timestamp | Session end time (null if active) |
-| `attendance_open` | boolean | Whether check-ins are accepted |
-| `center_lat` | float | Geofence center latitude |
-| `center_lng` | float | Geofence center longitude |
-| `radius_meters` | int | Geofence radius in meters |
-| `created_at` | timestamp | Creation time |
-
-#### `attendance_logs`
-Student check-in records.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | uuid | Primary key |
-| `session_id` | uuid | FK to sessions |
-| `student_id` | uuid | FK to profiles |
-| `checked_in_at` | timestamp | Check-in timestamp |
-| `check_in_lat` | float | Student's GPS latitude |
-| `check_in_lng` | float | Student's GPS longitude |
-| `distance_meters` | float | Distance from geofence center |
-| `device_id` | text | Device identifier |
-| `is_verified` | boolean | GPS verification successful |
-| `university_id` | uuid | Institution reference |
-| `created_at` | timestamp | Record creation time |
-
-#### `classrooms` (Optional)
-Physical classroom definitions (currently unused in MVP).
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | uuid | Primary key |
-| `name` | text | Room identifier |
-| `center_lat` | float | Default GPS coordinates |
-| `center_lng` | float | Default GPS coordinates |
-| `radius_meters` | int | Default geofence radius |
-| `university_id` | uuid | Institution reference |
-
-### Key Relationships
+## 🔐 &nbsp;Security Model
 
 ```
-profiles (users)
-  ├─ units (lecturer -> units)
-  ├─ sessions (lecturer -> sessions)
-  └─ attendance_logs (student -> attendance_logs)
+THREAT: Student asks friend to check in for them
+DEFENCE: Device fingerprinting — account locked to registered device
 
-sessions
-  ├─ units (unit_id)
-  ├─ profiles (lecturer_id)
-  └─ attendance_logs (session_id)
+THREAT: Student fakes GPS location
+DEFENCE: Server-side re-verification in Edge Function
+
+THREAT: Double check-in
+DEFENCE: Unique constraint on (session_id, student_id)
+
+THREAT: Unauthorized data access
+DEFENCE: Row Level Security — every query filtered by auth.uid()
+
+THREAT: Stolen credentials
+DEFENCE: Biometric second factor — must physically hold registered device
 ```
+
+<br/>
 
 ---
 
-## 🔐 Authentication Flow
+## 🚀 &nbsp;Quick Start
 
-### New User (First Login)
-
-```
-Login Screen
-    ↓
-[Email + Password]
-    ↓
-Biometric Verification
-    ↓
-[Fingerprint/Face ID or Password-Only]
-    ↓
-Session Created → Credentials stored in SecureStore/localStorage
-    ↓
-Role-based routing (Student/Lecturer/Admin Dashboard)
-```
-
-### Returning User (Session Exists)
-
-```
-App Starts
-    ↓
-[Check for existing session in storage]
-    ↓
-Session Found → Skip login
-    ↓
-Biometric Verification Screen
-    ↓
-[Fingerprint/Face ID confirms identity]
-    ↓
-Role-based routing (Dashboard)
-```
-
-### Platform Differences
-
-| Feature | Mobile | Web |
-|---------|--------|-----|
-| Credential Storage | expo-secure-store | localStorage |
-| Geolocation | expo-location | navigator.geolocation |
-| Biometric | Device biometric hardware | N/A (password only) |
-| Session Persistence | SecureStore | localStorage |
-
----
-
-## 🎯 User Workflows
-
-### Lecturer Session Start
-
-```
-1. Open Dashboard
-   ↓
-2. Select Unit from list
-   ↓
-3. (Optional) Enter room label (e.g., "NCLB 3")
-   ↓
-4. Select geofence radius (30m, 50m, 75m, 100m)
-   ↓
-5. Tap "Start Session Now"
-   ↓
-   → App captures lecturer's GPS position
-   → Creates session with geofence
-   → Attendance opens for students
-   ↓
-6. View live roster (updates realtime as students check in)
-   ↓
-7. Tap "End Session" to close attendance
-```
-
-### Student Check-In
-
-```
-1. Open Home screen
-   ↓
-2. Active session appears (if lecturer started one)
-   ↓
-3. See:
-   - Unit code + room label
-   - Lecturer name
-   - Geofence radius
-   ↓
-4. Tap "MARK PRESENT" button
-   ↓
-   → App captures student's GPS position
-   → Verifies geofence (within range?)
-   ↓
-   If INSIDE:
-   → Attendance logged to database
-   → Status shows "CHECKED IN ✓"
-   → Attendance stats update
-   
-   If OUTSIDE:
-   → Button shows "TOO FAR ✗"
-   → Distance displayed
-   ↓
-5. View attendance history (Home → History)
-```
-
----
-
-## 🔧 Configuration
-
-### app.json (Expo Configuration)
-
-```json
-{
-  "expo": {
-    "name": "AttendEase",
-    "slug": "attendease",
-    "version": "1.0.0",
-    "scheme": "attendease",
-    "orientation": "portrait",
-    "plugins": [
-      "expo-device",
-      "expo-location",
-      "expo-secure-store",
-      "expo-biometric"
-    ]
-  }
-}
-```
-
-### eas.json (Build Configuration)
-
-```json
-{
-  "build": {
-    "preview": {
-      "android": {
-        "buildType": "apk"
-      }
-    },
-    "production": {
-      "android": {
-        "buildType": "aab"
-      }
-    }
-  }
-}
-```
-
-### Environment Variables
-
-**Required:**
-- `EXPO_PUBLIC_SUPABASE_URL` - Supabase project URL
-- `EXPO_PUBLIC_SUPABASE_ANON_KEY` - Public anonymous key
-
-**Never commit:** `.env` files containing secrets
-
----
-
-## 📱 Screens & Navigation
-
-### Student Routes
-- `/(student)/home` - Active session + check-in button
-- `/(student)/history` - Attendance records with stats
-
-### Lecturer Routes
-- `/(lecturer)/dashboard` - Unit selector + live session management
-- `/(lecturer)/reports` - Attendance analytics and reports
-
-### Admin Routes
-- `/(admin)/calibrate` - GPS calibration tool
-
-### Auth Routes
-- `/(auth)/login` - Email/password sign-in
-- `/(auth)/biometric` - Biometric verification + fallback
-
----
-
-## 🐛 Error Handling
-
-### Common Issues & Solutions
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 406 Not Found | `.single()` on optional query | Use `.maybeSingle()` |
-| "No GPS fix yet" | Location permissions denied | Grant location access in settings |
-| "Session not found" | Lecturer hasn't started session | Lecturer must start session first |
-| "Check-in failed" | Outside geofence radius | Move closer to lecturer |
-| Session exists but no role | Database role missing | Check profiles table, ensure role is set |
-
-### Debugging
-
-**Enable console logging:**
-```typescript
-console.log('Session data:', JSON.stringify(data));
-console.log('Geofence result:', JSON.stringify(geo));
-console.log('fetchRole result:', JSON.stringify(data), JSON.stringify(error));
-```
-
-**Check Supabase realtime subscriptions:**
-- Open Supabase Dashboard → Realtime Inspector
-- Monitor channel activity for attendance_logs changes
-
----
-
-## 🚦 Testing Scenarios
-
-### Test 1: Lecturer Starts Session
-1. Login as lecturer
-2. Select unit
-3. Tap "Start Session Now"
-4. Verify session created in Supabase
-
-### Test 2: Student Checks In (Inside Geofence)
-1. Login as student
-2. See active session
-3. Tap "MARK PRESENT"
-4. Verify attendance logged with `is_verified: true`
-
-### Test 3: Student Outside Geofence
-1. Change device location (simulator)
-2. Tap "MARK PRESENT"
-3. See "TOO FAR ✗" status
-4. Verify no attendance logged
-
-### Test 4: Biometric Fallback
-1. Login with password only (skip biometric)
-2. Close app
-3. App should show biometric screen next time
-4. Scan fingerprint or tap password fallback
-
-### Test 5: Cross-Platform (Web vs Mobile)
-1. Start on web
-2. Check localStorage has session token
-3. Switch to mobile
-4. Verify SecureStore has credentials
-5. Confirm platform-aware storage works
-
----
-
-## 📈 Performance Considerations
-
-- **Realtime Subscriptions** - Limited to 1 active channel per screen to avoid connection overload
-- **GPS Accuracy** - Set minimum accuracy threshold before accepting geofence check
-- **Database Queries** - Use `.maybeSingle()` for optional lookups to prevent 406 errors
-- **Storage** - Platform-aware adapter prevents iOS/web crashes from SecureStore
-- **TypeScript** - Strict null-safety prevents runtime crashes from undefined properties
-
----
-
-## 🔒 Security
-
-### Best Practices Implemented
-
-- ✅ Biometric + password dual authentication
-- ✅ GPS-based verification (prevents spoofing by location)
-- ✅ Platform-aware credential storage (never exposes in localStorage)
-- ✅ Supabase RLS policies enforce user isolation
-- ✅ Environment variables for secrets (never committed)
-- ✅ Session tokens stored securely (not in AsyncStorage)
-
-### Recommendations for Production
-
-1. Implement rate limiting on geofence checks
-2. Add server-side GPS validation (edge function)
-3. Enforce HTTPS-only communication
-4. Set up database backups and replication
-5. Monitor attendance anomalies (duplicate check-ins)
-6. Implement audit logging for compliance
-
----
-
-## 📚 Dependencies
-
-### Core
-- `react-native` 0.76.9 - Mobile framework
-- `expo` 52.0.0 - Development platform
-- `expo-router` 4.0.22 - File-based navigation
-- `@supabase/supabase-js` - Backend client
-
-### Location & Device
-- `expo-location` - GPS services
-- `expo-device` - Device identification
-- `expo-secure-store` - Secure credential storage
-
-### Authentication
-- `expo-biometric` - Fingerprint/Face ID
-- `@supabase/gotrue-js` - Auth client
-
-### UI
-- `react-native` StyleSheet (built-in)
-- Animated API (React Native built-in)
-
----
-
-## 🛠 Development Commands
+### 1. Clone & Install
 
 ```bash
-# Start dev server
-npx expo start --clear
-
-# Build for Android
-npx eas build --platform android --profile preview
-
-# Build for Web
-npx expo export --platform web
-
-# Type check
-npx tsc --noEmit
-
-# Clean cache
+git clone https://github.com/chaz-ux/AttendEase.git
+cd AttendEase
 npm install
-npx expo start --clear
 ```
 
+### 2. Environment
+
+```bash
+# Create .env in project root
+EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+### 3. Run
+
+```bash
+npx expo start --clear
+
+# Then:
+# Press A → Android emulator
+# Press W → Browser
+# Scan QR → Expo Go on physical device
+```
+
+### 4. Deploy Edge Function
+
+```bash
+npx supabase login
+npx supabase link --project-ref YOUR_PROJECT_REF
+npx supabase functions deploy verify-attendance
+```
+
+### 5. Build APK
+
+```bash
+npx eas build --platform android --profile preview
+```
+
+<br/>
+
 ---
 
-## 📝 Future Enhancements
+## 👤 &nbsp;Test Accounts
 
-- [ ] Analytics dashboard with charts (skeleton exists)
-- [ ] Bulk attendance import/export
-- [ ] QR code check-in as alternative to GPS
+> Use these to evaluate the system. All accounts are pre-seeded on the JKUAT Supabase instance.
+
+| Role | Login ID | Password | Name |
+|------|----------|----------|------|
+| 🎓 Student | `SCM211-0631/2022` | `Jkuat@2024` | Kariuki Charles Chege |
+| 🎓 Student | `SCM211-0632/2022` | `Jkuat@2024` | Achieng Grace |
+| 🎓 Student | `SCM211-0633/2022` | `Jkuat@2024` | Mutua Brian Kioko |
+| 👨‍🏫 Lecturer | `lecturer001` | `Jkuat@2024` | Dr. Mwangi Joseph |
+| 👩‍🏫 Lecturer | `lecturer002` | `Jkuat@2024` | Dr. Wanjiku Njeri |
+| 🔧 Admin | `admin` | `Jkuat@2024` | System Administrator |
+
+> **Login format:** Students enter reg number (e.g. `SCM211-0631/2022`), staff enter ID (e.g. `lecturer001`). The app auto-constructs the `@jkuat.ac.ke` email.
+
+<br/>
+
+---
+
+## 🎬 &nbsp;Evaluation Walkthrough
+
+### Demo Flow (5 minutes)
+
+```
+1. LECTURER LOGIN
+   → Login as lecturer001
+   → Dashboard shows units: STA 2401, STA 2301, MAT 2101
+   → Select STA 2401
+   → Type room: "NCLB 3"
+   → Set radius: 50m
+   → Tap START SESSION NOW
+   → Session goes LIVE ✓
+
+2. STUDENT CHECK-IN (separate device / browser tab)
+   → Login as SCM211-0631/2022
+   → Active session appears instantly
+   → Tap MARK PRESENT
+   → GPS verified → CHECKED IN ✓
+   → Lecturer's roster updates in real time
+
+3. REPORTS
+   → Lecturer taps REPORTS in nav
+   → See bar chart, trend line, quality breakdown
+   → Tap EXPORT CSV → share sheet opens
+
+4. ADMIN
+   → Login as admin
+   → Overview: student count, lecturer count, sessions, check-ins
+   → Users tab: all registered users
+   → Sessions tab: all sessions with attendance rates
+```
+
+> **For GPS demo:** The geofence radius can be temporarily increased to 5000m so evaluation works from any location. Contact the developer to adjust before the demo.
+
+<br/>
+
+---
+
+## 📱 &nbsp;Screens
+
+| Screen | Role | Description |
+|--------|------|-------------|
+| Login | All | Role selector + credentials |
+| Biometric | All | Fingerprint verification |
+| Student Home | Student | GPS check-in + active session card |
+| Student History | Student | Personal attendance logs + stats |
+| Lecturer Dashboard | Lecturer | Session control + live roster |
+| Lecturer Reports | Lecturer | Analytics + CSV export |
+| Admin Dashboard | Admin | Platform overview + user management |
+| GPS Calibrate | Admin | Classroom coordinate calibration |
+
+<br/>
+
+---
+
+## 🛠 &nbsp;Tech Stack
+
+| Category | Technology | Version |
+|----------|-----------|---------|
+| Framework | React Native | 0.76.9 |
+| Platform | Expo | 52.0.0 |
+| Navigation | expo-router | 4.0.22 |
+| Backend | Supabase | latest |
+| Database | PostgreSQL | 15 |
+| Auth | Supabase Auth + expo-local-authentication | — |
+| GPS | expo-location + navigator.geolocation | — |
+| Storage | expo-secure-store + localStorage | — |
+| Build | EAS (Expo Application Services) | — |
+| Language | TypeScript | 5.3 |
+| Serverless | Supabase Edge Functions (Deno) | — |
+
+<br/>
+
+---
+
+## 🔮 &nbsp;Roadmap
+
+- [ ] QR code check-in as GPS alternative
+- [ ] Push notifications (session started alerts)
 - [ ] Offline mode with sync on reconnect
-- [ ] Multi-language support
-- [ ] SMS notifications for students
-- [ ] Advanced reporting (by date range, pattern detection)
-- [ ] Mobile app store deployment (iOS App Store, Google Play)
+- [ ] Selfie verification (extra anti-proxy layer)
+- [ ] Admin bulk user import via CSV
+- [ ] Multi-university support
+- [ ] Date-range report filtering
+- [ ] Google Play / App Store deployment
+
+<br/>
 
 ---
 
-## 🤝 Contributing
-
-1. Fork repository
-2. Create feature branch: `git checkout -b feature/description`
-3. Commit changes: `git commit -m "Add description"`
-4. Push to branch: `git push origin feature/description`
-5. Open Pull Request
+<div align="center">
 
 ---
 
-## 📄 License
+Built at **JKUAT** · Mobile Computing Project 2026
 
-This project is proprietary. All rights reserved.
+**Kariuki Charles Chege** — `SCM211-0631/2022`
 
----
-
-## 👨‍💻 Author
-
-**Chaz UX**  
-Repository: [github.com/chaz-ux/AttendEase](https://github.com/chaz-ux/AttendEase)
+[github.com/chaz-ux/AttendEase](https://github.com/chaz-ux/AttendEase)
 
 ---
 
-## 📞 Support
+*"The best attendance system is one students can't cheat and lecturers don't have to think about."*
 
-For issues or questions:
-1. Check GitHub Issues
-2. Review error handling section above
-3. Check Supabase logs for backend errors
-4. Enable console logging for debugging
-
----
-
-**Last Updated:** May 1, 2026  
-**Version:** 1.0.0 MVP  
-**Status:** Production Ready ✅
+</div>
